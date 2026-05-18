@@ -38,6 +38,7 @@ import {
 } from "../services/broadcast";
 import type { BroadcastMessage, Connection, Contact, MessageFilter } from "../types";
 import { formatDateTime, fromDatetimeLocalValue, toDatetimeLocalValue } from "../utils/date";
+import { matchesMessageFilter } from "../utils/message";
 
 type MessagesPanelProps = {
   ownerId: string;
@@ -74,7 +75,7 @@ export const MessagesPanel = ({
   );
 
   const filteredMessages = useMemo(
-    () => messages.filter((message) => filter === "all" || message.status === filter),
+    () => messages.filter((message) => matchesMessageFilter(message.status, filter)),
     [filter, messages]
   );
 

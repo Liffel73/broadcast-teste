@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { BroadcastMessage, Connection, Contact, MessageStatus } from "../types";
+import { getInitialMessageStatus } from "../utils/message";
 
 type FirestoreData = Record<string, unknown>;
 type Unsubscribe = () => void;
@@ -203,7 +204,9 @@ export const subscribeMessages = (
 };
 
 const normalizeMessageSchedule = (scheduledAt: Date | null) => {
-  if (!scheduledAt) {
+  const status = getInitialMessageStatus(scheduledAt);
+
+  if (status === "sent") {
     return {
       status: "sent" as MessageStatus,
       scheduledAt: null,
@@ -213,7 +216,7 @@ const normalizeMessageSchedule = (scheduledAt: Date | null) => {
 
   return {
     status: "scheduled" as MessageStatus,
-    scheduledAt: Timestamp.fromDate(scheduledAt),
+    scheduledAt: Timestamp.fromDate(scheduledAt as Date),
     sentAt: null
   };
 };
