@@ -1,0 +1,138 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    function isIncomingOwner() {
+      return signedIn() && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    function keepsOwner() {
+      return request.resource.data.ownerId == resource.data.ownerId;
+    }
+
+    function connectionExists(connectionId) {
+      return exists(/databases/$(database)/documents/connections/$(connectionId));
+    }
+
+    function ownsConnection(connectionId) {
+      return signedIn()
+        && connectionExists(connectionId)
+        && get(/databases/$(database)/documents/connections/$(connectionId)).data.ownerId == request.auth.uid;
+    }
+
+    function validAuditFields() {
+      return request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /connections/{connectionId} {
+      allow read, delete: if isOwner();
+
+      allow create: if isIncomingOwner()
+        && request.resource.data.keys().hasOnly(["ownerId", "name", "createdAt", "updatedAt"])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 80
+        && validAuditFields();
+
+      allow update: if isOwner()
+        && keepsOwner()
+        && request.resource.data.keys().hasOnly(["ownerId", "name", "createdAt", "updatedAt"])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 80
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /contacts/{contactId} {
+      allow read, delete: if isOwner();
+
+      allow create: if isIncomingOwner()
+        && request.resource.data.keys().hasOnly(["ownerId", "connectionId", "name", "phone", "createdAt", "updatedAt"])
+        && ownsConnection(request.resource.data.connectionId)
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 8
+        && request.resource.data.phone.size() <= 30
+        && validAuditFields();
+
+      allow update: if isOwner()
+        && keepsOwner()
+        && request.resource.data.keys().hasOnly(["ownerId", "connectionId", "name", "phone", "createdAt", "updatedAt"])
+        && ownsConnection(request.resource.data.connectionId)
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 8
+        && request.resource.data.phone.size() <= 30
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /messages/{messageId} {
+      allow read, delete: if isOwner();
+
+      allow create: if isIncomingOwner()
+        && request.resource.data.keys().hasOnly([
+          "ownerId",
+          "connectionId",
+          "content",
+          "contactIds",
+          "status",
+          "scheduledAt",
+          "sentAt",
+          "createdAt",
+          "updatedAt"
+        ])
+        && ownsConnection(request.resource.data.connectionId)
+        && request.resource.data.content is string
+        && request.resource.data.content.size() >= 1
+        && request.resource.data.content.size() <= 2000
+        && request.resource.data.contactIds is list
+        && request.resource.data.contactIds.size() >= 1
+        && request.resource.data.contactIds.size() <= 500
+        && request.resource.data.status in ["scheduled", "sent"]
+        && (request.resource.data.scheduledAt == null || request.resource.data.scheduledAt is timestamp)
+        && (request.resource.data.sentAt == null || request.resource.data.sentAt is timestamp)
+        && validAuditFields();
+
+      allow update: if isOwner()
+        && keepsOwner()
+        && request.resource.data.keys().hasOnly([
+          "ownerId",
+          "connectionId",
+          "content",
+          "contactIds",
+          "status",
+          "scheduledAt",
+          "sentAt",
+          "createdAt",
+          "updatedAt"
+        ])
+        && ownsConnection(request.resource.data.connectionId)
+        && request.resource.data.content is string
+        && request.resource.data.content.size() >= 1
+        && request.resource.data.content.size() <= 2000
+        && request.resource.data.contactIds is list
+        && request.resource.data.contactIds.size() >= 1
+        && request.resource.data.contactIds.size() <= 500
+        && request.resource.data.status in ["scheduled", "sent"]
+        && (request.resource.data.scheduledAt == null || request.resource.data.scheduledAt is timestamp)
+        && (request.resource.data.sentAt == null || request.resource.data.sentAt is timestamp)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt is timestamp;
+    }
+  }
+}
