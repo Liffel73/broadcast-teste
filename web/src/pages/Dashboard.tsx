@@ -1,6 +1,11 @@
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import InboxIcon from "@mui/icons-material/Inbox";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { Alert, Button, CircularProgress, Divider, Paper, Tab, Tabs, Typography } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import { Alert, Button, CircularProgress, Paper, Tab, Tabs, Typography } from "@mui/material";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { BrandMark } from "../components/BrandMark";
 import { ConnectionSidebar } from "../components/ConnectionSidebar";
 import { ContactsPanel } from "../components/ContactsPanel";
 import { MessagesPanel } from "../components/MessagesPanel";
@@ -43,24 +48,21 @@ export const Dashboard = () => {
   );
 
   return (
-    <main className="min-h-screen bg-paper">
-      <header className="border-b border-line bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <Typography variant="h5" fontWeight={900}>
-              Broadcast
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {user?.email}
-            </Typography>
-          </div>
-          <Button variant="outlined" startIcon={<LogoutIcon />} onClick={logout}>
-            Sair
-          </Button>
+    <main className="min-h-screen bg-app text-base-fg lg:grid lg:grid-cols-[64px_300px_1fr]">
+      <nav className="hidden min-h-screen flex-col items-center gap-1 border-r border-line bg-soft py-4 lg:flex">
+        <div className="mb-3">
+          <BrandMark size={34} />
         </div>
-      </header>
+        <RailButton active icon={<InboxIcon fontSize="small" />} label="Workspace" />
+        <RailButton icon={<NotificationsNoneIcon fontSize="small" />} label="Atividade" />
+        <RailButton icon={<CalendarMonthIcon fontSize="small" />} label="Agenda" />
+        <RailButton icon={<SettingsOutlinedIcon fontSize="small" />} label="Configuracoes" />
+        <div className="mt-auto">
+          <RailButton icon={<LogoutIcon fontSize="small" />} label="Sair" onClick={logout} />
+        </div>
+      </nav>
 
-      <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 lg:grid-cols-[320px_1fr]">
+      <div className="lg:min-h-screen">
         <ConnectionSidebar
           ownerId={user?.uid ?? ""}
           connections={connections}
@@ -69,64 +71,112 @@ export const Dashboard = () => {
           messages={messages}
           onSelect={setActiveConnectionId}
         />
+      </div>
 
-        <Paper className="min-h-[680px] p-4 shadow-sm" variant="outlined">
-          {error ? (
-            <Alert severity="error" className="mb-4">
-              {error}
-            </Alert>
-          ) : null}
-
-          {loading ? (
-            <div className="flex min-h-[420px] items-center justify-center">
-              <CircularProgress />
+      <section className="flex min-h-screen flex-col">
+        <header className="border-b border-line bg-surface px-4 py-4 lg:px-6">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+            <div className="min-w-0">
+              <div className="mb-1 flex items-center gap-2 lg:hidden">
+                <BrandMark size={28} />
+                <Typography variant="subtitle1" fontWeight={900}>
+                  Broadcast
+                </Typography>
+              </div>
+              <Typography variant="body2" className="font-mono text-muted">
+                {user?.email}
+              </Typography>
+              <Typography variant="h5" fontWeight={900} className="mt-1">
+                {activeConnection?.name ?? "Selecione uma conexao"}
+              </Typography>
+              {activeConnection ? (
+                <Typography variant="body2" className="mt-1 text-muted">
+                  {scopedContacts.length} contatos, {scopedMessages.length} mensagens
+                </Typography>
+              ) : null}
             </div>
-          ) : activeConnection ? (
-            <div className="space-y-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <Typography variant="h6" fontWeight={900}>
-                    {activeConnection.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {scopedContacts.length} contatos, {scopedMessages.length} mensagens
-                  </Typography>
-                </div>
+            <div className="flex items-center gap-2">
+              {activeConnection ? (
                 <Tabs value={tab} onChange={(_, nextTab: WorkspaceTab) => setTab(nextTab)}>
                   <Tab label="Contatos" value="contacts" />
                   <Tab label="Mensagens" value="messages" />
                 </Tabs>
-              </div>
-              <Divider />
-              {tab === "contacts" ? (
-                <ContactsPanel
-                  ownerId={user?.uid ?? ""}
-                  connection={activeConnection}
-                  contacts={scopedContacts}
-                />
-              ) : (
-                <MessagesPanel
-                  ownerId={user?.uid ?? ""}
-                  connection={activeConnection}
-                  contacts={scopedContacts}
-                  messages={scopedMessages}
-                />
-              )}
+              ) : null}
+              <Button className="lg:hidden" variant="outlined" startIcon={<LogoutIcon />} onClick={logout}>
+                Sair
+              </Button>
             </div>
-          ) : (
-            <div className="grid min-h-[420px] place-items-center text-center">
-              <div>
-                <Typography variant="h6" fontWeight={800}>
-                  Crie sua primeira conexao
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Cada conexao organiza seus proprios contatos e mensagens.
-                </Typography>
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-auto p-4 lg:p-6">
+          <Paper className="min-h-[680px] border-line bg-surface p-4 shadow-sm" variant="outlined">
+            {error ? (
+              <Alert severity="error" className="mb-4">
+                {error}
+              </Alert>
+            ) : null}
+
+            {loading ? (
+              <div className="flex min-h-[420px] items-center justify-center">
+                <CircularProgress />
               </div>
-            </div>
-          )}
-        </Paper>
-      </div>
+            ) : activeConnection ? (
+              <div className="space-y-4">
+                {tab === "contacts" ? (
+                  <ContactsPanel
+                    ownerId={user?.uid ?? ""}
+                    connection={activeConnection}
+                    contacts={scopedContacts}
+                  />
+                ) : (
+                  <MessagesPanel
+                    ownerId={user?.uid ?? ""}
+                    connection={activeConnection}
+                    contacts={scopedContacts}
+                    messages={scopedMessages}
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="grid min-h-[420px] place-items-center text-center">
+                <div>
+                  <Typography variant="h6" fontWeight={800}>
+                    Crie sua primeira conexao
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Cada conexao organiza seus proprios contatos e mensagens.
+                  </Typography>
+                </div>
+              </div>
+            )}
+          </Paper>
+        </div>
+      </section>
     </main>
   );
 };
+
+const RailButton = ({
+  icon,
+  label,
+  active,
+  onClick
+}: {
+  icon: ReactNode;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}) => (
+  <button
+    type="button"
+    title={label}
+    aria-label={label}
+    onClick={onClick}
+    className={`grid size-10 place-items-center rounded-xl transition-colors ${
+      active ? "bg-p-soft text-p" : "text-muted hover:bg-surface-2 hover:text-base-fg"
+    }`}
+  >
+    {icon}
+  </button>
+);

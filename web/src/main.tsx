@@ -7,23 +7,23 @@ import "./index.css";
 
 const theme = createTheme({
   palette: {
-    mode: "light",
+    mode: "dark",
     primary: {
-      main: "#2563eb"
+      main: "#a78bfa"
     },
     secondary: {
-      main: "#0f766e"
+      main: "#2dd4bf"
     },
     warning: {
-      main: "#b45309"
+      main: "#f59e0b"
     },
     background: {
-      default: "#f7f8fb",
-      paper: "#ffffff"
+      default: "#17151f",
+      paper: "#252232"
     },
     text: {
-      primary: "#172033",
-      secondary: "#5f6b7a"
+      primary: "#f7f3ff",
+      secondary: "#b9aec9"
     }
   },
   shape: {

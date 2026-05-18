@@ -17,3 +17,4 @@ pnpm-debug.log*
 .codex-*.log
 preview-login.png
 .tools
+design/

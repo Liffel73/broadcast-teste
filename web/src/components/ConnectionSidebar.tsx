@@ -115,9 +115,12 @@ export const ConnectionSidebar = ({
   };
 
   return (
-    <Paper className="h-fit p-4 shadow-sm" variant="outlined">
+    <Paper className="h-full min-h-[260px] rounded-none border-0 border-b border-line bg-soft p-4 shadow-none lg:min-h-screen lg:border-b-0 lg:border-r" variant="outlined">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
+          <Typography variant="caption" className="font-semibold uppercase tracking-[0.18em] text-dim">
+            Workspace
+          </Typography>
           <Typography variant="subtitle1" fontWeight={900}>
             Conexoes
           </Typography>
@@ -159,6 +162,14 @@ export const ConnectionSidebar = ({
                 selected={connection.id === activeConnectionId}
                 onClick={() => onSelect(connection.id)}
                 className="rounded-lg pr-20"
+                sx={{
+                  "&.Mui-selected": {
+                    backgroundColor: "rgba(167,139,250,.14)"
+                  },
+                  "&.Mui-selected:hover": {
+                    backgroundColor: "rgba(167,139,250,.2)"
+                  }
+                }}
               >
                 <ListItemText
                   primary={connection.name}

@@ -3,8 +3,19 @@
 @tailwind utilities;
 
 :root {
-  color: #172033;
-  background: #f7f8fb;
+  --bg: #17151f;
+  --bg-soft: #1e1b29;
+  --surface: #252232;
+  --surface-2: #2d293b;
+  --border: #3a344a;
+  --border-strong: #50485f;
+  --text: #f7f3ff;
+  --text-muted: #b9aec9;
+  --text-dim: #8d829d;
+  --primary: #a78bfa;
+  --primary-strong: #7c3aed;
+  color: var(--text);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -19,10 +30,72 @@ body,
 
 body {
   margin: 0;
+  background: var(--bg);
 }
 
 button,
 input,
 textarea {
   font: inherit;
+}
+
+@layer utilities {
+  .bg-app {
+    background: var(--bg);
+  }
+
+  .bg-soft {
+    background: var(--bg-soft);
+  }
+
+  .bg-surface {
+    background: var(--surface);
+  }
+
+  .bg-surface-2 {
+    background: var(--surface-2);
+  }
+
+  .border-line {
+    border-color: var(--border);
+  }
+
+  .border-strong {
+    border-color: var(--border-strong);
+  }
+
+  .text-base-fg {
+    color: var(--text);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  .text-dim {
+    color: var(--text-dim);
+  }
+
+  .text-p {
+    color: var(--primary);
+  }
+
+  .bg-p {
+    background: var(--primary-strong);
+  }
+
+  .bg-p-soft {
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 2px solid var(--bg);
+  border-radius: 999px;
 }
